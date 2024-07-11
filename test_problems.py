@@ -1,10 +1,8 @@
 import numpy as np
 from numpy import pi, sin, cos,exp,sqrt
-from scipy.special import erf
 import functions as fncs
-from scipy.special import lambertw
 
-class Test_HJ:
+class Test_HJ: # Parent class for easier construction of new test problems
     def __init__(self,N_x=50, t_end=2, b=1, lamda=None, r=None):
         self.N_x = N_x; self.b=b; self.t_end=t_end; self.lamda=lamda; self.r=r
         self.mu_1 = 1
@@ -53,123 +51,7 @@ class Test_HJ:
         return self.m(x,self.t_end)
 
 class Test1_HJ(Test_HJ):
-    #Definition of test problem
-    def u(self, x, t):
-        return  -1+cos(pi*x)
-    def m(self, x,t):
-        return 1 + 0*x
-    def mu_0_func(self, x,t):
-        return 0*x
-
-    #Depends on choice of u
-    def u_t(self, x,t):
-        return 0*x
-    def u_x(self, x,t):
-        return -pi*sin(pi*x)
-    def u_xx(self, x,t):
-        return -pi**2*cos(pi*x)
-#Observation: Probably since constant in time, only spatial discretization matters (large lamda is smart)
-        
-class Test2_HJ(Test_HJ):
-    #Definition of test problem
-    def u(self, x, t):
-        return  -1+cos(pi*x)
-    def m(self, x,t):
-        return (exp(-1/2 * (x-1/2)**2 / (1/2 + 1/4 * sin(2*pi*t))**2) /
-                (1/2 *sqrt(pi/2) * (sin(2*pi*t) + 2) * 
-                 erf( sqrt(2) / (sin(2*pi*t)+2) )))
-    def mu_0_func(self, x,t):
-        return (1-x)*sin(pi*t)**2
-
-    #Depends on choice of u
-    def u_t(self, x,t):
-        return 0*x
-    def u_x(self, x,t):
-        return -pi*sin(pi*x)
-    def u_xx(self, x,t):
-        return -pi**2*cos(pi*x)
-#Observations: 
-# 1) Probably since constant in time, only spatial discretization matters (large lamda is smart) 
-# 2) Lower diffusion constant = better result
-
-class Test3_HJ(Test_HJ):
-    #Definition of test problem
-    def u(self, x, t):
-        return  -1+cos(pi*x)+sin(2*pi*t)
-    def m(self, x,t):
-        return (exp(-1/2 * (x-1/2)**2 / (1/2 + 1/4 * sin(2*pi*t))**2) /
-                (1/2 *sqrt(pi/2) * (sin(2*pi*t) + 2) * 
-                 erf( sqrt(2) / (sin(2*pi*t)+2) )))
-    def mu_0_func(self, x,t):
-        return (1-x)*sin(pi*t)**2
-
-    #Depends on choice of u
-    def u_t(self, x,t):
-        return 2*pi*cos(2*pi*t)
-    def u_x(self, x,t):
-        return -pi*sin(pi*x)
-    def u_xx(self, x,t):
-        return -pi**2*cos(pi*x)
-#Observations: Now dt matters again for the error
-
-class Test4_HJ(Test_HJ):
-    #Definition of test problem
-    def u(self, x, t):
-        return  cos(pi*x + 2*pi*t) + pi*(x-x**2)*sin(2*pi*t)
-    def m(self, x,t):
-        return (exp(-1/2 * (x-1/2)**2 / (1/2 + 1/4 * sin(2*pi*t))**2) /
-                (1/2 *sqrt(pi/2) * (sin(2*pi*t) + 2) * 
-                 erf( sqrt(2) / (sin(2*pi*t)+2) )))
-    def mu_0_func(self, x,t):
-        return (1-x)*sin(pi*t)**2
-
-    #Depends on choice of u
-    def u_t(self, x,t):
-        return -2*pi*sin(pi*x + 2*pi*t) + 2*pi**2*(x-x**2)*cos(2*pi*t)
-    def u_x(self, x,t):
-        return -pi*sin(pi*x + 2*pi*t)+pi*(1-2*x)*sin(2*pi*t)
-    def u_xx(self, x,t):
-        return -pi**2*cos(pi*x + 2*pi*t) - 2*pi*sin(2*pi*t)
-#Observations:
-# 1) Both very low and very high diffusion is problematic.
-
-class Test5_HJ(Test_HJ):
-    #Definition of test problem
-    a=1/6; sigma=1/10
-    def u(self, x, t):
-        return  cos(pi*x + 2*pi*t) + pi*(x-x**2)*sin(2*pi*t)
-    def m(self, x,t):
-        return 1/(np.sqrt(2*pi)*self.sigma)*np.exp(-1/2 * (x-1/2-self.a*sin(2*pi*t))**2/self.sigma**2)
-    def mu_0_func(self, x,t):
-        return x*0
-
-    #Depends on choice of u
-    def u_t(self, x,t):
-        return -2*pi*sin(pi*x + 2*pi*t) + 2*pi**2*(x-x**2)*cos(2*pi*t)
-    def u_x(self, x,t):
-        return -pi*sin(pi*x + 2*pi*t)+pi*(1-2*x)*sin(2*pi*t)
-    def u_xx(self, x,t):
-        return -pi**2*cos(pi*x + 2*pi*t) - 2*pi*sin(2*pi*t)
-
-class Test6_HJ(Test_HJ):
-    #Definition of test problem
-    def u(self, x, t):
-        return  cos(2*pi*x)*sin(2*pi*t)-1
-    def m(self, x, t):
-        return x*0
-    def mu_0_func(self, x,t):
-        return (1-x)**2 * cos(2*pi*t)**2+1
-
-    #Depends on choice of u
-    def u_t(self, x,t):
-        return 2*pi*cos(2*pi*x)*cos(2*pi*t)
-    def u_x(self, x,t):
-        return -2*pi*sin(2*pi*x)*sin(2*pi*t)
-    def u_xx(self, x,t):
-        return -(2*pi)**2 *cos(2*pi*x)*sin(2*pi*t)
-
-class Test7_HJ(Test_HJ):
-    #Definition of test problem
+    # Definition of test problem
     def u(self, x, t):
         return  cos(pi*x + 2*pi*t) + pi*(x-x**2)*sin(2*pi*t)
     def m(self, x,t):
@@ -177,7 +59,7 @@ class Test7_HJ(Test_HJ):
     def mu_0_func(self, x,t):
         return x*0+1
 
-    #Depends on choice of u
+    # Partial derivatives of m and u
     def u_t(self, x,t):
         return -2*pi*sin(pi*x + 2*pi*t) + 2*pi**2*(x-x**2)*cos(2*pi*t)
     def u_x(self, x,t):
@@ -185,7 +67,7 @@ class Test7_HJ(Test_HJ):
     def u_xx(self, x,t):
         return -pi**2*cos(pi*x + 2*pi*t) - 2*pi*sin(2*pi*t)
 
-class Test_FP:
+class Test_FP: # Parent class for easier construction of new test problems
     def __init__(self,N_x=50, lamda=1, t_end=2, b=1):
         self.N_x = N_x; self.b=b; self.t_end=t_end; self.lamda=lamda
 
@@ -228,84 +110,9 @@ class Test_FP:
         return self.u(x,0)
     def m_T(self,x):
         return self.m(x,self.t_end)
-    
-#Observations:
-# 1) Seems like rounding error at 10^-3/10^-4. 
-# Should be expected due to central diff for m_xx
-    
+
 class Test1_FP(Test_FP):
-    #Definition of test problem
-    def m(self, x,t):
-        return 1/self.t_end * ( t + (self.t_end-t)*2*x**2*(3-2*x) )
-    def u(self, x, t):
-        return  -1/(2*pi)*cos(2*pi*x)*(t+1)
-
-    #Depends on choice of m and u
-    def m_t(self, x,t):
-        return 1/self.t_end * ( 1-2*x**2*(3-2*x) )
-    def m_x(self, x,t):
-        return 1/self.t_end * (self.t_end-t) * 12*x*(1-x)
-    def m_xx(self, x,t):
-        return 1/self.t_end * (self.t_end-t) * 12*(1-2*x)
-    def u_x(self, x,t):
-        return sin(2*pi*x)*(t+1)
-    def u_xx(self, x,t):
-        return 2*pi*cos(2*pi*x)*(t+1)
-#Observations:
-# 1) Very low diffusion produces boundary layer
-
-class Test2_FP(Test_FP):
-    #Definition of test problem
-    def m(self, x,t):
-        return 1-cos(3*pi*x)*cos(pi*t)
-    def u(self, x, t):
-        return 5*t*x**2*(1/2 - 1/3 *x)
-
-    #Depends on choice of m and u
-    def m_t(self, x,t):
-        return pi*cos(3*pi*x)*sin(pi*t)
-    def m_x(self, x,t):
-        return 3*pi*sin(3*pi*x) * cos(pi*t)
-    def m_xx(self, x,t):
-        return 9*pi**2*cos(3*pi*x) * cos(pi*t)
-    def u_x(self, x,t):
-        return 5*t*x*(1-x)
-    def u_xx(self, x,t):
-        return 5*t*(1-2*x)
-#Observations:
-# 1) Very low diffusion produces boundary layer
-# 2) Very low diffusion also makes negative values... 
-# 3) Greater convergence rates for high diffusion-coeffs
-# 4) Reaches machine precision (10^-4) N_x=80
-
-class Test3_FP(Test_FP):
-    #Definition of test problem
-    a=1/6; sigma=1#/10
-    def m(self, x,t):
-        return 1/(np.sqrt(2*pi)*self.sigma)*np.exp(-1/2 * (x-1/2-self.a*sin(2*pi*t))**2/self.sigma**2)
-    def _m_bar(self,x,t):
-        return -(x-1/2-self.a*sin(2*pi*t))/self.sigma**2
-    def _d(self,t):
-        return -self.b/2 * self._m_bar(0,t)
-    def _k(self,t):
-        return -self.b/2 * self._m_bar(1,t)
-    def u(self,x,t):
-        return (self._k(t)-self._d(t))*1/2 *x**2 + self._d(t)*x
-
-    #Depends on choice of m and u
-    def m_x(self,x,t):
-        return self._m_bar(x,t)*self.m(x,t)
-    def m_xx(self,x,t):
-        return (self._m_bar(x,t)**2-1/self.sigma**2)*self.m(x,t)
-    def m_t(self,x,t):
-        return -self.a*2*pi*cos(2*pi*t)*self._m_bar(x,t)*self.m(x,t)
-    def u_x(self,x,t):
-        return (self._k(t)-self._d(t))*x + self._d(t)
-    def u_xx(self,x,t):
-        return self._k(t)-self._d(t)
-
-class Test7_FP(Test_FP):
-    #Definition of test problem
+    # Definition of test problem
     def u(self, x, t):
         return  cos(pi*x + 2*pi*t) + pi*(x-x**2)*sin(2*pi*t)
     def m(self, x,t):
@@ -313,7 +120,7 @@ class Test7_FP(Test_FP):
     def mu_0_func(self, x,t):
         return x*0+1
 
-    #Depends on choice of m and u
+    # Partial derivatives of m and u
     def m_t(self, x,t):
         return pi*cos(3*pi*x)*sin(pi*t)
     def m_x(self, x,t):
@@ -328,7 +135,7 @@ class Test7_FP(Test_FP):
     def u_xx(self, x,t):
         return -pi**2*cos(pi*x + 2*pi*t) - 2*pi*sin(2*pi*t)
 
-class Test_MFG:
+class Test_MFG: # Parent class for easier construction of new test problems
     def __init__(self,N_x=50, lamda=1, t_end=2, b=1):
         self.N_x = N_x; self.b=b; self.t_end=t_end; self.lamda=lamda
         self.mu_1 = 1
@@ -347,7 +154,7 @@ class Test_MFG:
 
         self.setup_dict = fncs.setup(**self.setup_kwargs)
         
-    #Definition of test problem
+    # Definition of test problem
     def m(self, x,t):
         return None
     def u(self, x, t):
@@ -355,7 +162,7 @@ class Test_MFG:
     def mu_0_func(self, x,t):
         return None
 
-    #Depends on choice of m and u
+    # Depends on choice of m and u
     def m_t(self, x,t):
         return None
     def m_x(self, x,t):
@@ -369,7 +176,7 @@ class Test_MFG:
     def u_xx(self, x,t):
         return None
     
-    #The same every time
+    # The same every time
     def f_HJ_func(self, x,t):
         return -(self.u_t(x,t) + self.u_x(x,t)**2 - self.b*self.u_xx(x,t)+
                 self.u(x,t)*( self.mu_0_func(x,t) + self.mu_1*self.m(x,t) ))
@@ -381,35 +188,9 @@ class Test_MFG:
         return self.u(x,0)
     def m_T(self,x):
         return self.m(x,self.t_end)
-#Observations 
-# 1) The error is very large even for very fine grid... 
-# 2) U gets fucked over time, seems like something is "leaking"
 
 class Test1_MFG(Test_MFG):
-    #Definition of test problem
-    def m(self, x,t):
-        return 1/self.t_end * ( t + (self.t_end-t)*2*x**2*(3-2*x) )
-    def u(self, x, t):
-        return  -1/(2*pi)*cos(2*pi*x)*(t+1)-1
-    def mu_0_func(self, x,t):
-        return (1-x)*sin(pi*t)**2
-
-    #Depends on choice of m and u
-    def m_t(self, x,t):
-        return 1/self.t_end * ( 1-2*x**2*(3-2*x) )
-    def m_x(self, x,t):
-        return 1/self.t_end * (self.t_end-t) * 12*x*(1-x)
-    def m_xx(self, x,t):
-        return 1/self.t_end * (self.t_end-t) * 12*(1-2*x)
-    def u_t(self,x,t):
-        return -1/(2*pi)*cos(2*pi*x)
-    def u_x(self, x,t):
-        return sin(2*pi*x)*(t+1)
-    def u_xx(self, x,t):
-        return 2*pi*cos(2*pi*x)*(t+1)
-
-class Test7_MFG(Test_MFG):
-    #Definition of test problem
+    # Definition of test problem
     def u(self, x, t):
         return  cos(pi*x + 2*pi*t) + pi*(x-x**2)*sin(2*pi*t)
     def m(self, x,t):
@@ -417,7 +198,7 @@ class Test7_MFG(Test_MFG):
     def mu_0_func(self, x,t):
         return x*0+1
 
-    #Depends on choice of m and u
+    # Partial derivatives of m and u
     def m_t(self, x,t):
         return pi*cos(3*pi*x)*sin(pi*t)
     def m_x(self, x,t):
@@ -432,40 +213,8 @@ class Test7_MFG(Test_MFG):
     def u_xx(self, x,t):
         return -pi**2*cos(pi*x + 2*pi*t) - 2*pi*sin(2*pi*t)
 
-class Test_Ersland_MFG:
-    def __init__(self,N_x=50, lamda=1, t_end=2):
-        self.N_x = N_x; self.t_end=t_end; self.lamda=lamda
-        self.mu_1 = 1; self.b=0.09**2
 
-        self.setup_kwargs = {"N_x":self.N_x, "lamda":self.lamda, "t_end":self.t_end, 
-                                "b":self.b, "mu_1":self.mu_1, "u_0":self.u_0, 
-                                "m_T":self.m_T, "mu_0_func":self.mu_0_func, 
-                                "f_HJ_func":self.f_HJ_func, 
-                                "f_FP_func":self.f_FP_func}
-
-        self.setup_dict = fncs.setup(**self.setup_kwargs)
-    
-    def set_N_x(self, N_x):
-        self.N_x = N_x
-        self.setup_kwargs["N_x"]=self.N_x
-
-        self.setup_dict = fncs.setup(**self.setup_kwargs)
-
-
-    #Definition of test problem
-    def mu_0_func(self, x,t):
-        return x*0
-    
-    #The same every time
-    def f_HJ_func(self, x,t):
-        return 5*(x-0.5*(1-sin(2*pi*(self.t_end-t))))**2
-    def f_FP_func(self, x,t):
-        return 0*x
-    def u_0(self, x):
-        return 0*x
-    def m_T(self,x):
-        return cos(2*pi *x -pi)+1
-        
+# DVM problem with arguments as given by the PhD-thesis of Mazuryn ----------------------
 class DVM:
     
     def __init__(self, N_x=100, lamda=1, t_end=10, gamma=0.02, I_0 = 1, K=1, T=24,
@@ -576,9 +325,203 @@ class DVM:
                 ret[j,i], ret[j,N_t-1-i] = ret[j,N_t-1-i], ret[j,i]
         return ret
             
-            
-        
+# Other Test Systems --------------------------------------------------------------------
+from scipy.special import erf
+from scipy.special import lambertw
 
-    
-    
-    
+class Test2_HJ(Test_HJ):
+    #Definition of test problem
+    def u(self, x, t):
+        return  -1+cos(pi*x)
+    def m(self, x,t):
+        return 1 + 0*x
+    def mu_0_func(self, x,t):
+        return 0*x
+
+    #Depends on choice of u
+    def u_t(self, x,t):
+        return 0*x
+    def u_x(self, x,t):
+        return -pi*sin(pi*x)
+    def u_xx(self, x,t):
+        return -pi**2*cos(pi*x)
+     
+class Test3_HJ(Test_HJ):
+    #Definition of test problem
+    def u(self, x, t):
+        return  -1+cos(pi*x)
+    def m(self, x,t):
+        return (exp(-1/2 * (x-1/2)**2 / (1/2 + 1/4 * sin(2*pi*t))**2) /
+                (1/2 *sqrt(pi/2) * (sin(2*pi*t) + 2) * 
+                 erf( sqrt(2) / (sin(2*pi*t)+2) )))
+    def mu_0_func(self, x,t):
+        return (1-x)*sin(pi*t)**2
+
+    #Depends on choice of u
+    def u_t(self, x,t):
+        return 0*x
+    def u_x(self, x,t):
+        return -pi*sin(pi*x)
+    def u_xx(self, x,t):
+        return -pi**2*cos(pi*x)
+
+class Test4_HJ(Test_HJ):
+    #Definition of test problem
+    def u(self, x, t):
+        return  -1+cos(pi*x)+sin(2*pi*t)
+    def m(self, x,t):
+        return (exp(-1/2 * (x-1/2)**2 / (1/2 + 1/4 * sin(2*pi*t))**2) /
+                (1/2 *sqrt(pi/2) * (sin(2*pi*t) + 2) * 
+                 erf( sqrt(2) / (sin(2*pi*t)+2) )))
+    def mu_0_func(self, x,t):
+        return (1-x)*sin(pi*t)**2
+
+    #Depends on choice of u
+    def u_t(self, x,t):
+        return 2*pi*cos(2*pi*t)
+    def u_x(self, x,t):
+        return -pi*sin(pi*x)
+    def u_xx(self, x,t):
+        return -pi**2*cos(pi*x)
+
+class Test5_HJ(Test_HJ):
+    #Definition of test problem
+    def u(self, x, t):
+        return  cos(pi*x + 2*pi*t) + pi*(x-x**2)*sin(2*pi*t)
+    def m(self, x,t):
+        return (exp(-1/2 * (x-1/2)**2 / (1/2 + 1/4 * sin(2*pi*t))**2) /
+                (1/2 *sqrt(pi/2) * (sin(2*pi*t) + 2) * 
+                 erf( sqrt(2) / (sin(2*pi*t)+2) )))
+    def mu_0_func(self, x,t):
+        return (1-x)*sin(pi*t)**2
+
+    #Depends on choice of u
+    def u_t(self, x,t):
+        return -2*pi*sin(pi*x + 2*pi*t) + 2*pi**2*(x-x**2)*cos(2*pi*t)
+    def u_x(self, x,t):
+        return -pi*sin(pi*x + 2*pi*t)+pi*(1-2*x)*sin(2*pi*t)
+    def u_xx(self, x,t):
+        return -pi**2*cos(pi*x + 2*pi*t) - 2*pi*sin(2*pi*t)
+
+class Test6_HJ(Test_HJ):
+    #Definition of test problem
+    a=1/6; sigma=1/10
+    def u(self, x, t):
+        return  cos(pi*x + 2*pi*t) + pi*(x-x**2)*sin(2*pi*t)
+    def m(self, x,t):
+        return 1/(np.sqrt(2*pi)*self.sigma)*np.exp(-1/2 * (x-1/2-self.a*sin(2*pi*t))**2/self.sigma**2)
+    def mu_0_func(self, x,t):
+        return x*0
+
+    #Depends on choice of u
+    def u_t(self, x,t):
+        return -2*pi*sin(pi*x + 2*pi*t) + 2*pi**2*(x-x**2)*cos(2*pi*t)
+    def u_x(self, x,t):
+        return -pi*sin(pi*x + 2*pi*t)+pi*(1-2*x)*sin(2*pi*t)
+    def u_xx(self, x,t):
+        return -pi**2*cos(pi*x + 2*pi*t) - 2*pi*sin(2*pi*t)
+
+class Test7_HJ(Test_HJ):
+    #Definition of test problem
+    def u(self, x, t):
+        return  cos(2*pi*x)*sin(2*pi*t)-1
+    def m(self, x, t):
+        return x*0
+    def mu_0_func(self, x,t):
+        return (1-x)**2 * cos(2*pi*t)**2+1
+
+    #Depends on choice of u
+    def u_t(self, x,t):
+        return 2*pi*cos(2*pi*x)*cos(2*pi*t)
+    def u_x(self, x,t):
+        return -2*pi*sin(2*pi*x)*sin(2*pi*t)
+    def u_xx(self, x,t):
+        return -(2*pi)**2 *cos(2*pi*x)*sin(2*pi*t)
+
+class Test2_FP(Test_FP):
+    #Definition of test problem
+    def m(self, x,t):
+        return 1/self.t_end * ( t + (self.t_end-t)*2*x**2*(3-2*x) )
+    def u(self, x, t):
+        return  -1/(2*pi)*cos(2*pi*x)*(t+1)
+
+    #Depends on choice of m and u
+    def m_t(self, x,t):
+        return 1/self.t_end * ( 1-2*x**2*(3-2*x) )
+    def m_x(self, x,t):
+        return 1/self.t_end * (self.t_end-t) * 12*x*(1-x)
+    def m_xx(self, x,t):
+        return 1/self.t_end * (self.t_end-t) * 12*(1-2*x)
+    def u_x(self, x,t):
+        return sin(2*pi*x)*(t+1)
+    def u_xx(self, x,t):
+        return 2*pi*cos(2*pi*x)*(t+1)
+
+class Test3_FP(Test_FP):
+    #Definition of test problem
+    def m(self, x,t):
+        return 1-cos(3*pi*x)*cos(pi*t)
+    def u(self, x, t):
+        return 5*t*x**2*(1/2 - 1/3 *x)
+
+    #Depends on choice of m and u
+    def m_t(self, x,t):
+        return pi*cos(3*pi*x)*sin(pi*t)
+    def m_x(self, x,t):
+        return 3*pi*sin(3*pi*x) * cos(pi*t)
+    def m_xx(self, x,t):
+        return 9*pi**2*cos(3*pi*x) * cos(pi*t)
+    def u_x(self, x,t):
+        return 5*t*x*(1-x)
+    def u_xx(self, x,t):
+        return 5*t*(1-2*x)
+
+class Test4_FP(Test_FP):
+    #Definition of test problem
+    a=1/6; sigma=1#/10
+    def m(self, x,t):
+        return 1/(np.sqrt(2*pi)*self.sigma)*np.exp(-1/2 * (x-1/2-self.a*sin(2*pi*t))**2/self.sigma**2)
+    def _m_bar(self,x,t):
+        return -(x-1/2-self.a*sin(2*pi*t))/self.sigma**2
+    def _d(self,t):
+        return -self.b/2 * self._m_bar(0,t)
+    def _k(self,t):
+        return -self.b/2 * self._m_bar(1,t)
+    def u(self,x,t):
+        return (self._k(t)-self._d(t))*1/2 *x**2 + self._d(t)*x
+
+    #Depends on choice of m and u
+    def m_x(self,x,t):
+        return self._m_bar(x,t)*self.m(x,t)
+    def m_xx(self,x,t):
+        return (self._m_bar(x,t)**2-1/self.sigma**2)*self.m(x,t)
+    def m_t(self,x,t):
+        return -self.a*2*pi*cos(2*pi*t)*self._m_bar(x,t)*self.m(x,t)
+    def u_x(self,x,t):
+        return (self._k(t)-self._d(t))*x + self._d(t)
+    def u_xx(self,x,t):
+        return self._k(t)-self._d(t)
+
+class Test2_MFG(Test_MFG):
+    #Definition of test problem
+    def m(self, x,t):
+        return 1/self.t_end * ( t + (self.t_end-t)*2*x**2*(3-2*x) )
+    def u(self, x, t):
+        return  -1/(2*pi)*cos(2*pi*x)*(t+1)-1
+    def mu_0_func(self, x,t):
+        return (1-x)*sin(pi*t)**2
+
+    #Depends on choice of m and u
+    def m_t(self, x,t):
+        return 1/self.t_end * ( 1-2*x**2*(3-2*x) )
+    def m_x(self, x,t):
+        return 1/self.t_end * (self.t_end-t) * 12*x*(1-x)
+    def m_xx(self, x,t):
+        return 1/self.t_end * (self.t_end-t) * 12*(1-2*x)
+    def u_t(self,x,t):
+        return -1/(2*pi)*cos(2*pi*x)
+    def u_x(self, x,t):
+        return sin(2*pi*x)*(t+1)
+    def u_xx(self, x,t):
+        return 2*pi*cos(2*pi*x)*(t+1)
+ 
