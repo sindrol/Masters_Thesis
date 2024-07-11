@@ -1,6 +1,3 @@
-main.*
-!main.pdf
-!main.tex
 /.vscode
 env/
 __pycache__/
